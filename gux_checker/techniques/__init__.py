@@ -15,6 +15,7 @@ import gux_checker.techniques.census_diff as _census_diff  # noqa: F401
 import gux_checker.techniques.colours as _colours  # noqa: F401
 import gux_checker.techniques.compare as _compare  # noqa: F401
 import gux_checker.techniques.lines as _lines  # noqa: F401
+import gux_checker.techniques.llm_vision as _llm_vision  # noqa: F401
 import gux_checker.techniques.ocr as _ocr  # noqa: F401
 import gux_checker.techniques.regions as _regions  # noqa: F401
 import gux_checker.techniques.verify as _verify  # noqa: F401

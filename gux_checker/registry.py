@@ -23,6 +23,7 @@ _TECHNIQUE_MODULES = [
     'colours',
     'compare',
     'lines',
+    'llm_vision',
     'ocr',
     'regions',
     'verify',

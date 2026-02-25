@@ -74,18 +74,18 @@ def _build_parser() -> argparse.ArgumentParser:
         short_help = (mod.__doc__ or '').strip().splitlines()[0] if (mod.__doc__ or '').strip() else tech.help
 
         p = sub.add_parser(name, help=short_help)
-        p.add_argument('tmp_dir', help='Working directory for artefacts')
-        p.add_argument('image', help='Path to screenshot PNG/JPG')
+        p.add_argument('tmp_dir', nargs='?' if name == 'llm_vision' else None, help='Working directory for artefacts')
+        p.add_argument('image', nargs='?' if name == 'llm_vision' else None, help='Path to screenshot PNG/JPG')
         p.add_argument('-g', '--gux', help='Path to .gux spec file')
         p.add_argument('-j', '--json', action='store_true', help='Output JSON instead of text')
         p.add_argument('-k', '--api-key', help='LLM API key (overrides env var)')
         p.add_argument(
             '-p',
             '--provider',
-            default='anthropic',
-            help='LLM provider name (default: anthropic). Any OpenAI-compatible name works.',
+            default='groq',
+            help='LLM provider name (default: groq). Any OpenAI-compatible name works.',
         )
-        p.add_argument('-r', '--ref', help='Reference image for compare/census-diff techniques')
+        p.add_argument('-r', '--ref', help='Reference image for compare/census_diff techniques')
         p.add_argument(
             '-d',
             '--fail-on-delta',
@@ -94,6 +94,13 @@ def _build_parser() -> argparse.ArgumentParser:
             metavar='N',
             help='Exit 1 if any zone colour distance exceeds N (CI gating)',
         )
+        if name == 'llm_vision':
+            p.add_argument('-m', '--model', default=None, help='Override vision model (default from provider)')
+            p.add_argument('--prompt', default=None, help='Prompt to send with each zone image (default: OCR)')
+            p.add_argument('--prime-rfc', action='store_true', help='Prepend the GUX RFC to the prompt for context')
+            p.add_argument(
+                '--list-models', action='store_true', help='List vision-capable models for the provider and exit'
+            )
 
     # `help` subcommand — prints full module docstring for a technique
     help_parser = sub.add_parser('help', help='Print full docs for a technique')
@@ -207,8 +214,19 @@ def main() -> None:
         _print_rfc()
         return
 
+    # llm_vision --list-models: no image needed
+    if args.technique == 'llm_vision' and getattr(args, 'list_models', False):
+        tech = registry.get('llm_vision')
+        tmp_dir = getattr(args, 'tmp_dir', '.tmp') or '.tmp'
+        import types as _types
+
+        stub = _types.SimpleNamespace(**vars(args))
+        stub.tmp_dir = tmp_dir
+        tech.execute([], Report(), stub)
+        return
+
     # Load image
-    if not os.path.isfile(args.image):
+    if not args.image or not os.path.isfile(args.image):
         print(f'Error: image not found: {args.image}', file=sys.stderr)
         sys.exit(1)
 

@@ -24,7 +24,7 @@ from gux_checker.core.palette import nearest_colour
 from gux_checker.core.types import Report, Technique, ZoneImage
 
 technique = Technique(
-    name='census-diff',
+    name='census_diff',
     help='Compare named colour shifts between reference and current. Requires --ref.',
 )
 
@@ -76,7 +76,7 @@ def _compute_shifts(ref: dict[str, float], cur: dict[str, float]) -> list[dict]:
 def run(zones: list[ZoneImage], report: Report, args) -> None:
     if not hasattr(args, 'ref') or not args.ref:
         for zone in zones:
-            report.add(zone.name, 'census-diff', {'error': '--ref reference image required'})
+            report.add(zone.name, 'census_diff', {'error': '--ref reference image required'})
         return
 
     ref_img = Image.open(args.ref).convert('RGB')
@@ -97,7 +97,7 @@ def run(zones: list[ZoneImage], report: Report, args) -> None:
 
         report.add(
             zone.name,
-            'census-diff',
+            'census_diff',
             {
                 'ref_top': list(ref_census.items())[:5],
                 'cur_top': list(cur_census.items())[:5],

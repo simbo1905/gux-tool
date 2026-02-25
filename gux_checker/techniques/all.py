@@ -33,6 +33,6 @@ def run(zones: list[ZoneImage], report: Report, args) -> None:
         if name in SKIP:
             continue
         # census-diff only runs when --ref is provided
-        if name == 'census-diff' and not has_ref:
+        if name == 'census_diff' and not has_ref:
             continue
         tech.execute(zones, report, args)
