@@ -5,8 +5,13 @@ on:
     # Nightly at 02:00 UTC
     - cron: '0 2 * * *'
   push:
+    branches:
+      - main
     tags:
       - 'release/v*'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -15,6 +20,7 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -28,7 +34,7 @@ jobs:
           - os: windows-latest
             platform: windows-amd64
             binary: gux-tool.exe
-            tesseract: choco install tesseract -y
+            tesseract: choco install tesseract --yes
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -53,7 +59,12 @@ jobs:
       - name: Run unit tests (skip Chrome integration)
         run: uv run pytest -v -k "not integration"
 
+      - name: Generate embedded RFC
+        run: make generate-rfc
+        shell: bash
+
       - name: Build binary
+        shell: bash
         run: |
           uv run pyinstaller gux_checker/__main__.py \
             -n gux-tool \
@@ -62,6 +73,16 @@ jobs:
             --workpath build \
             --specpath build \
             --clean
+
+      - name: Smoke test binary (unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./dist/gux-tool --help
+
+      - name: Smoke test binary (windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: ./dist/gux-tool.exe --help
 
       - name: Rename binary
         shell: bash
@@ -78,8 +99,39 @@ jobs:
         with:
           name: gux-tool-${{ matrix.platform }}
           path: dist/gux-tool-${{ matrix.platform }}*
+          retention-days: 7
 
-  # Create a draft release when a release tag is pushed
+  # Update nightly pre-release with latest binaries (schedule + main push only)
+  nightly:
+    needs: build
+    if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Update nightly pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Delete existing nightly tag and release if present
+          gh release delete nightly --yes 2>/dev/null || true
+          git push origin :refs/tags/nightly 2>/dev/null || true
+
+          gh release create nightly \
+            --title "gux-tool nightly ($(date -u +%Y-%m-%d))" \
+            --notes "Automated nightly build from main. Not a stable release." \
+            --prerelease \
+            artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64 \
+            artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64 \
+            artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe
+
+  # Create a draft release when a release/vX.Y.Z tag is pushed
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/release/v')
@@ -105,6 +157,6 @@ jobs:
             --title "gux-tool ${{ steps.version.outputs.version }}" \
             --draft \
             --generate-notes \
-            artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64 \
-            artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64 \
-            artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe
+            "artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64#gux-tool-${{ steps.version.outputs.version }}-linux-amd64" \
+            "artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64#gux-tool-${{ steps.version.outputs.version }}-macos-arm64" \
+            "artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe#gux-tool-${{ steps.version.outputs.version }}-windows-amd64.exe"
