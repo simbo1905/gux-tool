@@ -1,0 +1,110 @@
+name: Build gux-tool
+
+on:
+  schedule:
+    # Nightly at 02:00 UTC
+    - cron: '0 2 * * *'
+  push:
+    tags:
+      - 'release/v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-amd64
+            binary: gux-tool
+            tesseract: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+          - os: macos-latest
+            platform: macos-arm64
+            binary: gux-tool
+            tesseract: brew install tesseract
+          - os: windows-latest
+            platform: windows-amd64
+            binary: gux-tool.exe
+            tesseract: choco install tesseract -y
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Install tesseract
+        run: ${{ matrix.tesseract }}
+        shell: bash
+
+      - name: Run unit tests (skip Chrome integration)
+        run: uv run pytest -v -k "not integration"
+
+      - name: Build binary
+        run: |
+          uv run pyinstaller gux_checker/__main__.py \
+            -n gux-tool \
+            --onefile \
+            --distpath dist \
+            --workpath build \
+            --specpath build \
+            --clean
+
+      - name: Rename binary
+        shell: bash
+        run: |
+          cd dist
+          if [ "${{ matrix.platform }}" = "windows-amd64" ]; then
+            mv gux-tool.exe gux-tool-${{ matrix.platform }}.exe
+          else
+            mv gux-tool gux-tool-${{ matrix.platform }}
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gux-tool-${{ matrix.platform }}
+          path: dist/gux-tool-${{ matrix.platform }}*
+
+  # Create a draft release when a release tag is pushed
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/release/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/release/}" >> "$GITHUB_OUTPUT"
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "gux-tool ${{ steps.version.outputs.version }}" \
+            --draft \
+            --generate-notes \
+            artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64 \
+            artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64 \
+            artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe

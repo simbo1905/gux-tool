@@ -1,0 +1,24 @@
+repos:
+# General fixes and checks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+# Ruff replaces black, isort, flake8, and autoflake (config in pyproject.toml)
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+    -   id: ruff
+        args: [--fix, --unsafe-fixes]
+    -   id: ruff-format
+# Import linter — enforces module dependency architecture
+-   repo: local
+    hooks:
+    -   id: import-linter
+        name: import-linter
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        types: [python]

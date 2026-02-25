@@ -1,0 +1,109 @@
+import 'gux:core';
+import 'gux:tw';
+import 'gux:controls';
+
+/// A standard AI chat interface. Sidebar with history,
+/// main panel with message bubbles and input bar.
+Page('chat',
+  viewport: Viewport(1280, 800),
+  style: Style(bg: tw.white, text: '#0f172a', theme: 'light'),
+
+  /// ── SIDEBAR ───────────────────────────────────────────
+  Zone('sidebar',
+    bounds: Bounds(0, 0, 280, 800),
+    style: Style(bg: '#f9fafb', borderRight: '1px solid #e5e7eb'),
+    children: [
+
+      SearchBox(placeholder: 'Search...',
+        style: Style(m: 12, rounded: 'lg', bg: tw.white,
+          border: '1px solid #d1d5db', px: 12, py: 8)),
+
+      /// Conversations grouped by day.
+      ConversationList(
+        groups: Dynamic('date-groups'),
+        child: ConversationItem(
+          title: Label(Dynamic('title'),
+            style: Style(text: 'sm', colour: '#111827',
+              overflow: 'ellipsis', maxLines: 1)),
+          style: Style(px: 12, py: 8,
+            hover: Style(bg: '#f3f4f6'),
+            active: Style(bg: '#e5e7eb')),
+        ),
+        groupHeader: Label(Dynamic('date-label'),
+          style: Style(text: 'xs', font: '600', colour: '#6b7280',
+            px: 12, py: 4)),
+      ),
+
+      /// User info pinned to bottom.
+      Zone('user-info',
+        style: Style(borderTop: '1px solid #e5e7eb', p: 12),
+        children: [
+          Row(gap: 8, children: [
+            Avatar(size: 32, style: Style(rounded: 'full')),
+            Column(children: [
+              Label(Dynamic('user-name'), style: Style(text: 'sm', font: '500')),
+              Label(Dynamic('plan'), style: Style(text: 'xs', colour: '#6b7280')),
+            ]),
+          ]),
+        ],
+      ),
+    ],
+  ),
+
+  /// ── MAIN PANEL ────────────────────────────────────────
+  Zone('main',
+    bounds: Bounds(280, 0, 1280, 800),
+    style: Style(bg: tw.white),
+    children: [
+
+      /// Header bar.
+      Zone('header',
+        bounds: Bounds(280, 0, 1280, 52),
+        style: Style(borderBottom: '1px solid #e5e7eb', px: 20, py: 12),
+        children: [
+          Row(justify: 'space-between', children: [
+            Label(Dynamic('model-name'),
+              style: Style(text: 'sm', font: '600')),
+            IconButton('more', icon: '···',
+              style: Style(colour: '#6b7280')),
+          ]),
+        ],
+      ),
+
+      /// Messages — scrollable area, bubbles alternate sides.
+      Zone('messages',
+        bounds: Bounds(280, 52, 1280, 730),
+        style: Style(overflow: 'scroll-y', px: 20, py: 16),
+        children: [
+          MessageList(
+            items: Dynamic('messages'),
+            child: MessageBubble(
+              /// User: right-aligned, light blue.
+              user: Style(bg: '#eff6ff', rounded: 'xl',
+                px: 16, py: 10, maxWidth: '70%', align: 'right'),
+              /// Assistant: left-aligned, white.
+              assistant: Style(bg: tw.white, rounded: 'xl',
+                px: 16, py: 10, maxWidth: '70%', align: 'left'),
+            ),
+          ),
+        ],
+      ),
+
+      /// Input bar pinned to bottom.
+      Zone('input-bar',
+        bounds: Bounds(280, 730, 1280, 800),
+        style: Style(borderTop: '1px solid #e5e7eb', px: 20, py: 12),
+        children: [
+          Row(gap: 8, children: [
+            TextInput(placeholder: 'Type a message...',
+              style: Style(flex: Flex(1), rounded: 'xl',
+                border: '1px solid #d1d5db', px: 16, py: 10)),
+            IconButton('send', icon: '▶',
+              style: Style(bg: '#2563eb', text: tw.white,
+                rounded: 'full', size: 40)),
+          ]),
+        ],
+      ),
+    ],
+  ),
+)

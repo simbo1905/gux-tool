@@ -1,0 +1,75 @@
+import 'gux:core';
+import 'gux:tw';
+import 'gux:controls';
+import 'gux:charts';
+
+/// Sonar — Margin Monitor dashboard.
+/// Metabase-style clean white layout with KPI tiles, charts, and data table.
+Page('dashboard',
+  viewport: Viewport(960, 900),
+  style: Style(bg: tw.slate50, text: '#0f172a', theme: 'light'),
+
+  /// ── TOOLBAR ──────────────────────────────────────────
+  /// White header bar with app name and filters.
+  Zone('toolbar',
+    bounds: Bounds(0, 0, 960, 48),
+    style: Style(bg: tw.white, borderBottom: '1px solid #e2e8f0'),
+    children: [
+      Label('Sonar', style: Style(font: 'bold', colour: '#2563eb')),
+      Label('Margin Monitor', style: Style(text: 'sm', font: '600')),
+    ],
+  ),
+
+  /// ── KPI TILES ────────────────────────────────────────
+  /// Four metric cards in a row on white background.
+  Zone('kpi-tiles',
+    bounds: Bounds(0, 48, 960, 148),
+    style: Style(bg: tw.white, borderBottom: '1px solid #e2e8f0'),
+    children: [
+      Tile('avg-margin', value: Dynamic('avg-margin'), label: 'Avg Margin (Fee)',
+        style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl')),
+      Tile('threshold', value: Dynamic('threshold'), label: 'Threshold',
+        style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl')),
+      Tile('cases-above', value: Dynamic('cases-above'), label: 'Cases Above',
+        style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl')),
+      Tile('cases-below', value: Dynamic('cases-below'), label: 'Cases Below',
+        style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl')),
+    ],
+  ),
+
+  /// ── CHARTS ROW ───────────────────────────────────────
+  /// Two charts side by side on slate-50 background.
+  Zone('chart-left',
+    bounds: Bounds(0, 148, 480, 580),
+    style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl'),
+    children: [
+      BarChart(title: 'Net Margin by Tier',
+        series: Dynamic('margin-tiers'),
+        colours: ['#3b82f6', '#60a5fa', '#14b8a6', '#2dd4bf', '#f59e0b']),
+    ],
+  ),
+
+  Zone('chart-right',
+    bounds: Bounds(480, 148, 960, 580),
+    style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl'),
+    children: [
+      StackedBarChart(title: 'Volume by Product',
+        series: Dynamic('volume-products'),
+        colours: ['#3b82f6', '#10b981', '#f59e0b', '#f87171', '#8b5cf6']),
+    ],
+  ),
+
+  /// ── DATA TABLE ───────────────────────────────────────
+  /// Product detail table with status badges.
+  Zone('table',
+    bounds: Bounds(0, 580, 960, 900),
+    style: Style(bg: tw.white, border: '1px solid #e2e8f0', rounded: 'xl'),
+    children: [
+      Table(
+        columns: ['Product', 'Cases', 'Avg Margin', 'Min', 'Max', 'Status'],
+        rows: Dynamic('product-rows'),
+        headerStyle: Style(bg: tw.slate50, font: '600', text: 'sm'),
+      ),
+    ],
+  ),
+)

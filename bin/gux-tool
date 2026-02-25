@@ -1,0 +1,26 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "Pillow>=10.0",
+#     "scikit-learn>=1.3",
+#     "numpy>=1.24",
+#     "pytesseract>=0.3",
+# ]
+# ///
+"""gux-tool — Visual regression testing for UI screenshots using GUX specs.
+
+Standalone wrapper. Run directly: ./bin/gux-tool --help
+"""
+
+import sys
+from pathlib import Path
+
+# Add project root to path so gux_checker package is importable
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from gux_checker.__main__ import main
+
+if __name__ == '__main__':
+    main()

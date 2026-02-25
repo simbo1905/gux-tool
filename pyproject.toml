@@ -1,0 +1,117 @@
+[project]
+name = "gux-tool"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "Pillow>=10.0",
+    "scikit-learn>=1.3",
+    "numpy>=1.24",
+    "pytesseract>=0.3",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.30", "openai>=1.30"]
+build = ["pyinstaller>=6.0"]
+
+[project.scripts]
+gux-tool = "gux_checker.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pre-commit>=4.0",
+    "import-linter>=2.9",
+    "pyinstaller>=6.0",
+]
+
+# ── Ruff ─────────────────────────────────────────────────
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["gux_checker", "tests"]
+exclude = ["gux_checker/core/_rfc_data.py"]  # generated file
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "SIM108",  # Allow if-else blocks instead of ternary
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+"gux_checker/core/_rfc_data.py" = ["E501"]  # generated file — one long line
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+
+# ── Mypy ─────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "sklearn.*",
+    "pytesseract",
+    "anthropic",
+    "openai",
+]
+ignore_missing_imports = true
+
+# ── Import Linter ────────────────────────────────────────
+[tool.importlinter]
+root_packages = ["gux_checker"]
+
+[[tool.importlinter.contracts]]
+name = "core is foundation — no technique or registry imports"
+type = "forbidden"
+source_modules = ["gux_checker.core"]
+forbidden_modules = ["gux_checker.techniques", "gux_checker.registry"]
+
+[[tool.importlinter.contracts]]
+name = "technique modules are independent — cannot import each other"
+type = "independence"
+modules = [
+    "gux_checker.techniques.zones",
+    "gux_checker.techniques.colours",
+    "gux_checker.techniques.census",
+    "gux_checker.techniques.ocr",
+    "gux_checker.techniques.lines",
+    "gux_checker.techniques.regions",
+    "gux_checker.techniques.compare",
+]
+
+[[tool.importlinter.contracts]]
+name = "techniques cannot import __main__"
+type = "forbidden"
+source_modules = ["gux_checker.techniques"]
+forbidden_modules = ["gux_checker.__main__"]

@@ -1,0 +1,12 @@
+.env
+.tmp/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+build/
+*.egg-info/
+.uv/
+uv.lock
+.env

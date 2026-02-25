@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=960, initial-scale=1.0">
+<title>Sonar — Margin Monitor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  /* Metabase-style clean look */
+  .kpi-card { transition: box-shadow 0.15s; }
+  .kpi-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<!-- TOOLBAR: 0,0 → 960,48 -->
+<header class="bg-white border-b border-slate-200 px-6 flex items-center justify-between" style="height:48px; width:960px;">
+  <div class="flex items-center gap-3">
+    <span class="text-lg font-bold text-blue-600">Sonar</span>
+    <span class="text-slate-400">—</span>
+    <span class="text-sm font-semibold text-slate-700">Margin Monitor</span>
+  </div>
+  <div class="flex items-center gap-4">
+    <span class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Standard 0-60%</span>
+    <span class="text-xs text-slate-400">Last updated: 25 Feb 2026</span>
+  </div>
+</header>
+
+<!-- KPI TILES: 0,48 → 960,148 -->
+<section class="bg-white border-b border-slate-200 px-6 py-4 grid grid-cols-4 gap-4" style="width:960px; height:100px;">
+  <div class="kpi-card bg-white border border-slate-200 rounded-xl px-4 py-3">
+    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Avg Margin (Fee)</div>
+    <div class="text-2xl font-bold text-emerald-600 mt-1">149 <span class="text-sm font-normal text-slate-400">bps</span></div>
+  </div>
+  <div class="kpi-card bg-white border border-slate-200 rounded-xl px-4 py-3">
+    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Threshold</div>
+    <div class="text-2xl font-bold text-amber-600 mt-1">100 <span class="text-sm font-normal text-slate-400">bps</span></div>
+  </div>
+  <div class="kpi-card bg-white border border-slate-200 rounded-xl px-4 py-3">
+    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Cases Above</div>
+    <div class="text-2xl font-bold text-blue-600 mt-1">847</div>
+  </div>
+  <div class="kpi-card bg-white border border-slate-200 rounded-xl px-4 py-3">
+    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Cases Below</div>
+    <div class="text-2xl font-bold text-red-500 mt-1">53</div>
+  </div>
+</section>
+
+<!-- CHARTS ROW: 0,148 → 960,580 -->
+<section class="px-6 py-4 grid grid-cols-2 gap-4" style="width:960px;">
+
+  <!-- Left chart: Net Margin by Tier -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4" style="height:412px;">
+    <div class="text-sm font-semibold text-slate-700 mb-3">Net Margin by Tier</div>
+    <!-- Fake bar chart -->
+    <div class="flex items-end gap-3 h-80 px-2">
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-full bg-blue-500 rounded-t" style="height:280px;"></div>
+        <span class="text-xs text-slate-500 mt-2">LM1</span>
+      </div>
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-full bg-blue-400 rounded-t" style="height:220px;"></div>
+        <span class="text-xs text-slate-500 mt-2">LM2</span>
+      </div>
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-full bg-teal-500 rounded-t" style="height:180px;"></div>
+        <span class="text-xs text-slate-500 mt-2">Fee</span>
+      </div>
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-full bg-teal-400 rounded-t" style="height:150px;"></div>
+        <span class="text-xs text-slate-500 mt-2">Fee Assisted</span>
+      </div>
+      <div class="flex flex-col items-center flex-1">
+        <div class="w-full bg-amber-500 rounded-t" style="height:90px;"></div>
+        <span class="text-xs text-slate-500 mt-2">Other</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right chart: Volume by Product -->
+  <div class="bg-white border border-slate-200 rounded-xl p-4" style="height:412px;">
+    <div class="text-sm font-semibold text-slate-700 mb-3">Volume by Product</div>
+    <!-- Fake stacked horizontal bars -->
+    <div class="flex flex-col gap-3 mt-4">
+      <div>
+        <div class="text-xs text-slate-500 mb-1">2-Year Fix</div>
+        <div class="flex h-8 rounded overflow-hidden">
+          <div class="bg-blue-500" style="width:65%;"></div>
+          <div class="bg-blue-300" style="width:20%;"></div>
+          <div class="bg-slate-200" style="width:15%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">5-Year Fix</div>
+        <div class="flex h-8 rounded overflow-hidden">
+          <div class="bg-emerald-500" style="width:55%;"></div>
+          <div class="bg-emerald-300" style="width:25%;"></div>
+          <div class="bg-slate-200" style="width:20%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">Tracker</div>
+        <div class="flex h-8 rounded overflow-hidden">
+          <div class="bg-amber-500" style="width:40%;"></div>
+          <div class="bg-amber-300" style="width:30%;"></div>
+          <div class="bg-slate-200" style="width:30%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">SVR</div>
+        <div class="flex h-8 rounded overflow-hidden">
+          <div class="bg-red-400" style="width:25%;"></div>
+          <div class="bg-red-200" style="width:20%;"></div>
+          <div class="bg-slate-200" style="width:55%;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 mb-1">Offset</div>
+        <div class="flex h-8 rounded overflow-hidden">
+          <div class="bg-violet-500" style="width:30%;"></div>
+          <div class="bg-violet-300" style="width:35%;"></div>
+          <div class="bg-slate-200" style="width:35%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- TABLE: 0,580 → 960,800 -->
+<section class="px-6 pb-4" style="width:960px;">
+  <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="text-left px-4 py-3 font-semibold text-slate-600">Product</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Cases</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Avg Margin</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Min</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Max</th>
+          <th class="text-right px-4 py-3 font-semibold text-slate-600">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-slate-100">
+          <td class="px-4 py-3 text-slate-700">2-Year Fix LM1</td>
+          <td class="px-4 py-3 text-right text-slate-600">312</td>
+          <td class="px-4 py-3 text-right font-semibold text-emerald-600">168 bps</td>
+          <td class="px-4 py-3 text-right text-slate-500">102</td>
+          <td class="px-4 py-3 text-right text-slate-500">245</td>
+          <td class="px-4 py-3 text-right"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium">Above</span></td>
+        </tr>
+        <tr class="border-b border-slate-100">
+          <td class="px-4 py-3 text-slate-700">5-Year Fix LM1</td>
+          <td class="px-4 py-3 text-right text-slate-600">285</td>
+          <td class="px-4 py-3 text-right font-semibold text-emerald-600">155 bps</td>
+          <td class="px-4 py-3 text-right text-slate-500">88</td>
+          <td class="px-4 py-3 text-right text-slate-500">220</td>
+          <td class="px-4 py-3 text-right"><span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-medium">Above</span></td>
+        </tr>
+        <tr class="border-b border-slate-100">
+          <td class="px-4 py-3 text-slate-700">Tracker LM2</td>
+          <td class="px-4 py-3 text-right text-slate-600">180</td>
+          <td class="px-4 py-3 text-right font-semibold text-amber-600">112 bps</td>
+          <td class="px-4 py-3 text-right text-slate-500">65</td>
+          <td class="px-4 py-3 text-right text-slate-500">198</td>
+          <td class="px-4 py-3 text-right"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-medium">Near</span></td>
+        </tr>
+        <tr>
+          <td class="px-4 py-3 text-slate-700">SVR Fee Assisted</td>
+          <td class="px-4 py-3 text-right text-slate-600">53</td>
+          <td class="px-4 py-3 text-right font-semibold text-red-500">78 bps</td>
+          <td class="px-4 py-3 text-right text-slate-500">32</td>
+          <td class="px-4 py-3 text-right text-slate-500">125</td>
+          <td class="px-4 py-3 text-right"><span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">Below</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</body>
+</html>
