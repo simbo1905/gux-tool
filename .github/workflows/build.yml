@@ -129,7 +129,8 @@ jobs:
             --prerelease \
             artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64 \
             artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64 \
-            artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe
+            artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe \
+            gux-rfc.md
 
   # Create a draft release when a release/vX.Y.Z tag is pushed
   release:
@@ -161,4 +162,5 @@ jobs:
             --generate-notes \
             "artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64#gux-tool-${VERSION}-linux-amd64" \
             "artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64#gux-tool-${VERSION}-macos-arm64" \
-            "artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe#gux-tool-${VERSION}-windows-amd64.exe"
+            "artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe#gux-tool-${VERSION}-windows-amd64.exe" \
+            "gux-rfc.md"
