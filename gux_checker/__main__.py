@@ -27,6 +27,16 @@ from gux_checker.core.report import format_json, format_text
 from gux_checker.core.types import Report, ZoneImage
 
 
+def _cli_name(technique_name: str) -> str:
+    """Convert internal technique name to CLI-friendly form (underscores to hyphens)."""
+    return technique_name.replace('_', '-')
+
+
+def _internal_name(cli_name: str) -> str:
+    """Convert CLI command name back to internal technique name (hyphens to underscores)."""
+    return cli_name.replace('-', '_')
+
+
 def _load_technique_module(name: str) -> object:
     """Load the raw module for a technique (for docstring access)."""
     return importlib.import_module(f'gux_checker.techniques.{name}')
@@ -72,8 +82,9 @@ def _build_parser() -> argparse.ArgumentParser:
     for name, tech in sorted(techniques.items()):
         mod = _load_technique_module(name)
         short_help = (mod.__doc__ or '').strip().splitlines()[0] if (mod.__doc__ or '').strip() else tech.help
+        cli = _cli_name(name)
 
-        p = sub.add_parser(name, help=short_help)
+        p = sub.add_parser(cli, help=short_help)
         p.add_argument('tmp_dir', nargs='?' if name == 'llm_vision' else None, help='Working directory for artefacts')
         p.add_argument('image', nargs='?' if name == 'llm_vision' else None, help='Path to screenshot PNG/JPG')
         p.add_argument('-g', '--gux', help='Path to .gux spec file')
@@ -85,7 +96,7 @@ def _build_parser() -> argparse.ArgumentParser:
             default='groq',
             help='LLM provider name (default: groq). Any OpenAI-compatible name works.',
         )
-        p.add_argument('-r', '--ref', help='Reference image for compare/census_diff techniques')
+        p.add_argument('-r', '--ref', help='Reference image for compare/census-diff techniques')
         p.add_argument(
             '-d',
             '--fail-on-delta',
@@ -121,16 +132,17 @@ def _print_help(command: str | None) -> None:
         for name, tech in sorted(techniques.items()):
             mod = _load_technique_module(name)
             short = (mod.__doc__ or '').strip().splitlines()[0] if (mod.__doc__ or '').strip() else tech.help
-            print(f'  {name:<14} {short}')
+            print(f'  {_cli_name(name):<14} {short}')
         print('\nRun: gux-tool help <technique> for full docs.')
         return
 
-    if command not in techniques:
+    internal = _internal_name(command)
+    if internal not in techniques:
         print(f'Unknown technique: {command}', file=sys.stderr)
-        print(f'Available: {", ".join(sorted(techniques))}', file=sys.stderr)
+        print(f'Available: {", ".join(sorted(_cli_name(n) for n in techniques))}', file=sys.stderr)
         sys.exit(1)
 
-    mod = _load_technique_module(command)
+    mod = _load_technique_module(internal)
     doc = (mod.__doc__ or '').strip()
     if not doc:
         print(f'(No module docs for {command!r})')
@@ -203,6 +215,9 @@ def main() -> None:
     if not args.technique:
         parser.print_help()
         sys.exit(1)
+
+    # Normalize CLI technique name (hyphens) to internal name (underscores)
+    args.technique = _internal_name(args.technique)
 
     # Handle `help` subcommand
     if args.technique == 'help':
