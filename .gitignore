@@ -12,3 +12,4 @@ uv.lock
 .DS_Store
 **/.DS_Store
 .vscode/
+*.skill
