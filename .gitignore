@@ -9,4 +9,6 @@ build/
 *.egg-info/
 .uv/
 uv.lock
-.env
+.DS_Store
+**/.DS_Store
+.vscode/
