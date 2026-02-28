@@ -7,7 +7,7 @@ description: "Visual regression testing for UI screenshots using GUI UX Descript
 
 ## Overview
 
-GUX is a UI description language (baby Dart pseudo-code) that gives humans and LLMs a shared contract for what a screen should look like. `gux-tool` extracts structured data from screenshot pixels and compares it against a `.gux` spec. The LLM never sees pixels -- it reads numbers. To use this tool you MUST be able to screenshot your screens - you can do this manually or you can use automation tools such as headless chrome, kapture, playwrite or puppeteer. 
+GUX is a UI description language (baby Dart pseudo-code) that gives humans and LLMs a shared contract for what a screen should look like. `gux-tool` extracts structured data from screenshot pixels and compares it against a `.gux` spec. The LLM never sees pixels -- it reads numbers. To use this tool you MUST be able to screenshot your screens - you can do this manually or you can use automation tools such as headless chrome, kapture, Playwright or puppeteer. 
 
 ## Workflow Decision Tree
 
