@@ -1,86 +1,55 @@
 ---
 name: gux-visual-regression
 description: >-
-  This skill should be used when users need GUX visual regression work:
-  writing or reviewing .gux specs, running gux-tool techniques, calibrating
-  screenshot baselines, checking colour/structure regressions, and integrating
-  screenshot checks into CI. This skill also covers installing gux-tool from
-  GitHub Releases with checksum verification and platform-specific setup.
-  Trigger keywords: gux, .gux, gux-tool, visual regression, screenshot,
-  screenshot verification, colour delta, pixel diff, zone extraction,
-  Tailwind colour census, Bounds(), Style(bg:), Assert(), census-diff,
-  verify, llm-vision.
+  This skill should be used when users need GUX visual regression outcomes:
+  decide whether a UI screenshot matches intent, create or refine .gux specs,
+  run gux-tool checks, and gate regressions in CI. This skill is a signpost to
+  the release assets (binary, versioned README, versioned RFC), not a duplicate
+  of those docs. Trigger keywords: gux, .gux, gux-tool, screenshot
+  verification, visual regression, colour delta, pixel diff, zone extraction,
+  Assert(), Bounds(), Style(bg:), census-diff, verify.
 ---
 
 # gux-visual-regression
 
-Use this skill for GUX spec authoring, screenshot verification, and gux-tool operations.
+Use this skill as a high-level guide for **intent, objectives, and outcomes**.
 
-## Reference Material (read first)
+Do not duplicate full tool documentation in this file. Read the release assets for exact behavior and command details.
 
-Before starting implementation or debugging, read:
+## Intent
 
-- `../references/gux-rfc.md` -- authoritative GUX language spec and examples
-- `../references/agents.md` -- module architecture, dependency rules, coding conventions
-- `../references/readme.md` -- CLI usage, output formats, CI patterns, technique overview
+- Decide if `gux-tool` is the right tool for the task.
+- If yes, install and run the release binary safely.
+- Use the version-matched README and RFC from the same release for all detailed behavior.
 
-## Capabilities
+## Objectives
 
-- Write `.gux` specs from Figma, mockups, wireframes, or verbal descriptions
-- Reverse-engineer `.gux` specs from screenshots, HTML, PDF, or Figma exports
-- Calibrate specs against known-good control screenshots
-- Score new screenshots against calibrated baselines
-- Detect colour regressions with configurable delta thresholds (`--fail-on-delta`)
-- Detect structural absence (blank charts, empty tables) with `Assert()` thresholds
-- Integrate screenshot verification into CI with exit-code gating
-- LLM-based per-zone PASS/FAIL verification from structured extraction data
+- Produce machine-checkable visual assertions from screenshots.
+- Compare screenshot reality to a `.gux` visual contract.
+- Detect both colour regressions and structural absence.
+- Support CI pass/fail gating.
 
-## Install gux-tool from latest GitHub Release (critical)
+## Outcomes
+
+- Clear per-zone PASS/FAIL evidence.
+- Reproducible checks tied to a specific binary + RFC + README version.
+- Fast go/no-go decision for visual changes.
+
+## Install from latest release (minimal flow)
 
 Release page:
 
 - `https://github.com/simbo1905/gux-tool/releases/latest`
 
-Pick the correct binary for OS/arch:
+From the latest release, download the matching assets for your platform/version:
 
-- macOS Apple Silicon: `gux-tool-macos-arm64`
-- macOS Intel: `gux-tool-macos-x64`
-- Linux x64: `gux-tool-linux-x64`
-- Windows x64: `gux-tool-windows-x64.exe`
+- binary: `gux-tool-${os}-${arch}` (or `.exe` on Windows)
+- versioned RFC asset
+- versioned README asset
 
-### 1) Download binary and checksum file
+### macOS quarantine removal
 
-Download both:
-
-- the binary for the current OS/arch
-- the SHA256 checksum file published in the same release assets
-
-### 2) Verify SHA256 before execution
-
-Use OS-native checksum validation.
-
-macOS/Linux:
-
-```bash
-shasum -a 256 ./gux-tool-${os}-${arch}
-# Compare output manually with release SHA256 entry for that exact filename
-```
-
-Linux alternative:
-
-```bash
-sha256sum ./gux-tool-${os}-${arch}
-```
-
-Windows PowerShell:
-
-```powershell
-Get-FileHash .\gux-tool-${os}-${arch}.exe -Algorithm SHA256
-```
-
-### 3) macOS quarantine removal (required on downloaded binaries)
-
-If and only if running macOS, execute:
+If running on macOS, remove quarantine before first run:
 
 ```bash
 xattr -d com.apple.quarantine ./gux-tool-macos-arm64
@@ -88,80 +57,25 @@ xattr -d com.apple.quarantine ./gux-tool-macos-arm64
 
 (Use the matching macOS filename if not arm64.)
 
-### 4) Confirm embedded GUX RFC/version compatibility
+### Version compatibility check
 
-Run:
+After download, verify what the binary is built for:
 
 ```bash
 ./gux-tool-${os}-${arch} rfc
 ```
 
-This is the authoritative check for the exact GUX RFC/version baked into that binary.
+## Decision gate (use / don’t use)
 
-## Build from source (fallback when binary is unavailable)
+Use this skill when the task needs visual-contract checks from screenshots.
 
-If OS/arch binary is unavailable, build from source:
+Do not use this skill when the task is purely DOM/unit logic with no screenshot-based verification.
 
-```bash
-uv run pyinstaller gux_checker/__main__.py -n gux-tool --onefile
-./dist/gux-tool rfc
-```
+## Where detailed behavior lives
 
-## Runtime quick commands
+Use release-matched docs (same tag as the binary):
 
-```bash
-uv run gux-tool help
-uv run gux-tool help <technique>
-uv run gux-tool rfc
-uv run gux-tool all ./tmp ./screenshot.png --gux page.gux --json
-uv run gux-tool all ./tmp ./screenshot.png --gux page.gux --fail-on-delta=20
-uv run gux-tool census-diff ./tmp ./current.png --gux page.gux --ref ref.png
-uv run gux-tool verify ./tmp ./screenshot.png --gux page.gux --api-key <key> --provider anthropic
-```
+- versioned README asset: complete CLI/technique usage
+- versioned RFC asset: exact GUX language/spec semantics
 
-## GUX spec template (copy/paste baseline)
-
-```dart
-import 'gux:core';
-import 'gux:tw';
-
-Page('dashboard',
-  viewport: Viewport(1280, 800),
-  style: Style(bg: tw.white, text: '#0f172a', theme: 'light'),
-
-  Zone('header',
-    bounds: Bounds(0, 0, 1280, 60),
-    style: Style(bg: '#1e293b', text: tw.white),
-  ),
-
-  Zone('chart-area',
-    bounds: Bounds(0, 148, 480, 580),
-    style: Style(bg: tw.white),
-    assert: Assert(min_transitions_v: 10, min_transitions_h: 5),
-  ),
-)
-```
-
-Quick reminders:
-
-- `Bounds(x1, y1, x2, y2)` defines pixel crop zones
-- `Style(bg:)` sets expected background colour (`#hex` or `tw.*`)
-- `Assert(...)` enforces structural presence thresholds
-- `Dynamic('name')` marks runtime-variable values
-- `///` comments are part of the visual contract
-
-## Technique inventory
-
-| Technique | Purpose |
-|-----------|---------|
-| `colours` | Dominant colour extraction per zone (k-means), compared against `Style(bg:)` |
-| `zones` | Zone cropping from `Bounds()` and zone image export |
-| `lines` | Colour transition scanning for structural content checks (`Assert`) |
-| `census` | Pixel-to-nearest-named-colour mapping with percentages |
-| `census-diff` | Named-colour shift comparison between reference and current screenshots |
-| `regions` | Sub-region detection (tiles/cards/cells) within a zone |
-| `compare` | Pixel diff between reference and current, with mismatch percentage |
-| `ocr` | OCR text extraction per zone (opt-in, requires system tesseract) |
-| `llm-vision` | Zone image analysis via vision LLM (opt-in) |
-| `verify` | Run extraction and request LLM pass/fail verdict by zone (opt-in) |
-| `all` | Run all standard techniques; excludes `ocr`, `llm-vision`, `verify` |
+If the release assets are unavailable for the required platform, build from source and then use `./dist/gux-tool rfc` to confirm alignment.
