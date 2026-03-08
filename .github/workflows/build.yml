@@ -163,4 +163,5 @@ jobs:
             "artifacts/gux-tool-linux-amd64/gux-tool-linux-amd64#gux-tool-${VERSION}-linux-amd64" \
             "artifacts/gux-tool-macos-arm64/gux-tool-macos-arm64#gux-tool-${VERSION}-macos-arm64" \
             "artifacts/gux-tool-windows-amd64/gux-tool-windows-amd64.exe#gux-tool-${VERSION}-windows-amd64.exe" \
-            "gux-rfc.md"
+            "README.md#gux-tool-${VERSION}-README.md" \
+            "gux-rfc.md#gux-tool-${VERSION}-RFC.md"
