@@ -3,7 +3,6 @@
 Runs: colours, zones, census, lines, regions.
 Runs census-diff too if --ref is provided.
 Skips: ocr (requires system tesseract — run explicitly if needed).
-Skips: verify (requires API key — run explicitly).
 Skips: compare (use census-diff for ref comparisons in all mode).
 
 Example:
@@ -17,11 +16,11 @@ from gux_checker.core.types import Report, Technique, ZoneImage
 
 technique = Technique(
     name='all',
-    help='Run every extraction technique (except ocr/verify). Combine into a single report.',
+    help='Run every extraction technique (except ocr). Combine into a single report.',
 )
 
 # Techniques never run automatically
-SKIP = {'all', 'verify', 'ocr', 'compare'}
+SKIP = {'all', 'ocr', 'compare'}
 
 
 @technique.run

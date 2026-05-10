@@ -2,7 +2,7 @@
 
 Visual regression testing for UI screenshots using [GUX specs](./gux-rfc.md).
 
-Extracts structured data from screenshot pixels — colours, regions, text, layout — and produces a machine-readable report that an LLM can compare against a `.gux` spec to determine pass/fail. The LLM never sees the pixels. It reads numbers.
+Extracts structured data from screenshot pixels — colours, regions, text, layout — and produces a machine-readable report for comparison against a `.gux` spec.
 
 ## Install
 
@@ -27,7 +27,7 @@ uv run gux-tool colours ./tmp ./screenshot.png
 # Run with a .gux spec (extracts zones by bounds)
 uv run gux-tool all ./tmp ./screenshot.png --gux dashboard.gux
 
-# Get JSON output for piping to an LLM
+# Get JSON output
 uv run gux-tool all ./tmp ./screenshot.png --gux dashboard.gux --json
 
 # CI gate: fail if any zone colour delta exceeds threshold
@@ -35,9 +35,6 @@ uv run gux-tool all ./tmp ./screenshot.png --gux dashboard.gux --fail-on-delta=2
 
 # Compare named colour shifts between ref and current
 uv run gux-tool census-diff ./tmp ./current.png --gux page.gux --ref ref.png
-
-# Ask an LLM to verify (requires API key)
-uv run gux-tool verify ./tmp ./screenshot.png --gux dashboard.gux --api-key sk-...
 ```
 
 ## Techniques
@@ -54,8 +51,7 @@ Each technique is a self-contained Python module that extracts one kind of infor
 | `regions` | Subdivide zones into sub-regions by detecting colour boundaries. Find tiles within tile rows, cards within grids. |
 | `compare` | Pixel-diff two images (reference vs current). Output mismatch percentage per zone and a diff image. |
 | `ocr` | OCR each zone. Extract text, bounding boxes, confidence scores. **Opt-in only** — requires system `tesseract-ocr`. Not included in `all`. |
-| `all` | Run every technique (except `ocr` and `verify`). Combine into a single report. |
-| `verify` | Run `all`, then send the report + `.gux` spec to an LLM API for pass/fail verdict. **Opt-in only** — requires API key. |
+| `all` | Run every technique (except `ocr`). Combine into a single report. |
 
 ### Adding a technique
 
@@ -140,25 +136,6 @@ PASS 5/6 zones  FAIL 1/6 zones
 }
 ```
 
-## LLM Verification (`verify`)
-
-The `verify` technique runs all extraction, then sends the JSON report + the `.gux` spec text to an LLM and asks it to compare. The prompt is:
-
-> Here is a GUX visual spec and a structured extraction report from a screenshot.
-> Compare each zone's extracted data against the spec.
-> For each zone, state PASS or FAIL with a one-line reason.
-> Do not ask for the image. All the data you need is in the report.
-
-Supported providers via `--provider`:
-
-- `anthropic` (default) — Claude Sonnet
-- `openai` — GPT-4o-mini
-
-```bash
-uv run gux-tool verify ./tmp ./shot.png --gux page.gux \
-    --api-key sk-ant-... --provider anthropic
-```
-
 ## GUX Spec Format
 
 See [gux-rfc.md](./gux-rfc.md) for the full specification.
@@ -198,7 +175,6 @@ Two separate failure paths:
 - Python 3.11+
 - `uv` for running / building
 - Optional: `tesseract-ocr` (for `ocr` technique only)
-- Optional: Anthropic or OpenAI API key (for `verify` technique)
 
 ## License
 

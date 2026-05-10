@@ -7,7 +7,7 @@ description: >-
   the release assets (binary, versioned README, versioned RFC), not a duplicate
   of those docs. Trigger keywords: gux, .gux, gux-tool, screenshot
   verification, visual regression, colour delta, pixel diff, zone extraction,
-  Assert(), Bounds(), Style(bg:), census-diff, verify.
+  Assert(), Bounds(), Style(bg:), census-diff.
 ---
 
 # gux-visual-regression

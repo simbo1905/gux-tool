@@ -12,7 +12,7 @@
 
 ## Project Overview
 
-gux-tool extracts structured visual data from UI screenshots — colours, regions, text, layout — and produces a machine-readable report. An LLM can compare that report against a `.gux` spec to determine pass/fail. The LLM never sees pixels. It reads numbers.
+gux-tool extracts structured visual data from UI screenshots — colours, regions, text, layout — and produces a machine-readable report for comparison against a `.gux` spec to determine pass/fail.
 
 The tool runs as: `uv run gux-tool <technique> <tmp_dir> <image> [options]`
 
@@ -33,8 +33,7 @@ gux_checker/
 │   ├── lines.py             # Colour transition scanning
 │   ├── regions.py           # Sub-region detection
 │   ├── compare.py           # Pixel diff between reference and current
-│   ├── all.py               # Orchestrator — runs all techniques via registry
-│   └── verify.py            # Orchestrator — runs all + sends to LLM
+│   └── all.py               # Orchestrator — runs all techniques via registry
 ├── registry.py              # Auto-discovery of technique modules
 ├── __init__.py
 └── __main__.py              # CLI entry point (can import anything)
@@ -49,7 +48,6 @@ bin/
 | `gux_checker.core` | stdlib, numpy, PIL | `techniques`, `registry`, `__main__` |
 | `gux_checker.techniques.*` | `gux_checker.core`, numpy, PIL | other techniques, `__main__` |
 | `gux_checker.techniques.all` | `gux_checker.core`, `gux_checker.registry` | other techniques directly |
-| `gux_checker.techniques.verify` | `gux_checker.core`, `gux_checker.registry` | other techniques directly |
 | `gux_checker.registry` | `gux_checker.core`, `gux_checker.techniques` (scan only) | `__main__` |
 | `gux_checker.__main__` | anything | — |
 
@@ -123,7 +121,7 @@ def run(zones: list[ZoneImage], report: Report, args) -> None:
 ## CLI Conventions
 
 - ALL commands support `-h` and `--help`.
-- Options have dual short/long flags: `-g/--gux`, `-j/--json`, `-k/--api-key`, `-p/--provider`, `-r/--ref`.
+- Options have dual short/long flags: `-g/--gux`, `-j/--json`, `-r/--ref`.
 - `gux-tool help` lists all techniques with short descriptions.
 - `gux-tool help <technique>` prints the full module docstring.
 

@@ -8,9 +8,9 @@ Draft. Public comment invited.
 
 ## Abstract
 
-GUX is a non-compilable UI description language that follows Flutter/Dart widget tree syntax. It exists for one purpose: to give humans and LLMs a shared, readable contract for what a screen should look like — its layout, its zones, its colours, its component types — without any rendering engine, build toolchain, or runtime.
+GUX is a non-compilable UI description language that follows Flutter/Dart widget tree syntax. It exists for one purpose: to give humans and automated tools a shared, readable contract for what a screen should look like — its layout, its zones, its colours, its component types — without any rendering engine, build toolchain, or runtime.
 
-GUX files are consumed by AI models to verify screenshots. They are authored by humans (or models) from reference images, transcripts, and intent. They are never compiled, transpiled, or executed.
+GUX files are consumed by automated tools to verify screenshots. They are authored by humans from reference images, transcripts, and intent. They are never compiled, transpiled, or executed.
 
 ## Motivation
 
@@ -18,7 +18,7 @@ Modern agentic coding tools can read DOM, inspect CSS classes, and confirm that 
 
 There is no standard way to express "what this screen should look like" in a format that:
 
-1. An LLM can read and reason about fluently
+1. An agent can read and reason about fluently
 2. A simple image-processing script can verify against a screenshot
 3. A human can read and understand in thirty seconds
 4. Does not require a rendering engine, package manager, or compilation step
@@ -201,7 +201,7 @@ GUX does NOT:
 
 GUX DOES:
 
-- Provide a human- and LLM-readable layout contract
+- Provide a human- and machine-readable layout contract
 - Enable pixel-level verification of screenshots via simple tooling
 - Document the intended visual design in version control alongside the code
 - Catch CSS regressions that DOM/class inspection misses

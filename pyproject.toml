@@ -1,17 +1,15 @@
 [project]
 name = "gux-tool"
-version = "0.1.0"
+version = "0.4.0"
 requires-python = ">=3.11"
 dependencies = [
     "Pillow>=10.0",
     "scikit-learn>=1.3",
     "numpy>=1.24",
     "pytesseract>=0.3",
-    "openai>=1.30",
 ]
 
 [project.optional-dependencies]
-llm = ["anthropic>=0.30", "openai>=1.30"]
 build = ["pyinstaller>=6.0"]
 
 [project.scripts]
@@ -87,8 +85,6 @@ strict_equality = true
 module = [
     "sklearn.*",
     "pytesseract",
-    "anthropic",
-    "openai",
 ]
 ignore_missing_imports = true
 

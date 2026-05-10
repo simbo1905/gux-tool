@@ -52,16 +52,8 @@ def _build_parser() -> argparse.ArgumentParser:
         '  gux-tool all ./tmp screenshot.png --gux page.gux --fail-on-delta=20\n'
         '  gux-tool compare ./tmp current.png --gux page.gux --ref ref.png\n'
         '  gux-tool census-diff ./tmp current.png --gux page.gux --ref ref.png\n'
-        '  gux-tool verify ./tmp screenshot.png --gux page.gux --provider mistral\n'
         '  gux-tool help colours\n'
         '  gux-tool rfc\n'
-        '\n'
-        'Provider env vars (set in .env or environment):\n'
-        '  MISTRAL_API_KEY + MISTRAL_API_URL=https://api.mistral.ai/v1\n'
-        '  GROQ_API_KEY    + GROQ_API_URL=https://api.groq.com/openai/v1\n'
-        '  OPENAI_API_KEY  + OPENAI_API_URL=https://api.openai.com/v1\n'
-        '  ANTHROPIC_API_KEY (native SDK, no URL needed)\n'
-        '  Any OpenAI-compatible: NAME_API_KEY + NAME_API_URL\n'
     )
     parser = argparse.ArgumentParser(
         prog='gux-tool',
@@ -85,17 +77,10 @@ def _build_parser() -> argparse.ArgumentParser:
         cli = _cli_name(name)
 
         p = sub.add_parser(cli, help=short_help)
-        p.add_argument('tmp_dir', nargs='?' if name == 'llm_vision' else None, help='Working directory for artefacts')
-        p.add_argument('image', nargs='?' if name == 'llm_vision' else None, help='Path to screenshot PNG/JPG')
+        p.add_argument('tmp_dir', help='Working directory for artefacts')
+        p.add_argument('image', help='Path to screenshot PNG/JPG')
         p.add_argument('-g', '--gux', help='Path to .gux spec file')
         p.add_argument('-j', '--json', action='store_true', help='Output JSON instead of text')
-        p.add_argument('-k', '--api-key', help='LLM API key (overrides env var)')
-        p.add_argument(
-            '-p',
-            '--provider',
-            default='groq',
-            help='LLM provider name (default: groq). Any OpenAI-compatible name works.',
-        )
         p.add_argument('-r', '--ref', help='Reference image for compare/census-diff techniques')
         p.add_argument(
             '-d',
@@ -105,14 +90,6 @@ def _build_parser() -> argparse.ArgumentParser:
             metavar='N',
             help='Exit 1 if any zone colour distance exceeds N (CI gating)',
         )
-        if name == 'llm_vision':
-            p.add_argument('-m', '--model', default=None, help='Override vision model (default from provider)')
-            p.add_argument('--prompt', default=None, help='Prompt to send with each zone image (default: OCR)')
-            p.add_argument('--prime-rfc', action='store_true', help='Prepend the GUX RFC to the prompt for context')
-            p.add_argument(
-                '--list-models', action='store_true', help='List vision-capable models for the provider and exit'
-            )
-
     # `help` subcommand — prints full module docstring for a technique
     help_parser = sub.add_parser('help', help='Print full docs for a technique')
     help_parser.add_argument('command', nargs='?', help='Technique name')
@@ -229,17 +206,6 @@ def main() -> None:
         _print_rfc()
         return
 
-    # llm_vision --list-models: no image needed
-    if args.technique == 'llm_vision' and getattr(args, 'list_models', False):
-        tech = registry.get('llm_vision')
-        tmp_dir = getattr(args, 'tmp_dir', '.tmp') or '.tmp'
-        import types as _types
-
-        stub = _types.SimpleNamespace(**vars(args))
-        stub.tmp_dir = tmp_dir
-        tech.execute([], Report(), stub)
-        return
-
     # Load image
     if not args.image or not os.path.isfile(args.image):
         print(f'Error: image not found: {args.image}', file=sys.stderr)
@@ -265,9 +231,7 @@ def main() -> None:
     tech.execute(zones, report, args)
 
     # Output
-    if args.technique == 'verify':
-        pass  # verify prints its own output
-    elif args.json:
+    if args.json:
         print(format_json(report))
     else:
         print(format_text(report, gux_path=args.gux))
