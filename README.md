@@ -60,7 +60,7 @@ Create `gux_checker/techniques/my_technique.py`:
 ```python
 """One-line description shown in --help."""
 
-from gux_checker.types import Technique, ZoneImage, Report
+from gux_checker.core.types import Technique, ZoneImage, Report
 
 technique = Technique(
     name='my_technique',
@@ -175,6 +175,10 @@ Two separate failure paths:
 - Python 3.11+
 - `uv` for running / building
 - Optional: `tesseract-ocr` (for `ocr` technique only)
+
+Running the test suite or `make generate` additionally needs Chrome or Chromium.
+It is auto-detected on macOS, Linux and Windows; set `CHROME=/path/to/chrome` to
+pin a specific binary. Integration tests skip themselves when none is found.
 
 ## License
 

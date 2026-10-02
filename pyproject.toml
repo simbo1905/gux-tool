@@ -105,6 +105,7 @@ modules = [
     "gux_checker.techniques.zones",
     "gux_checker.techniques.colours",
     "gux_checker.techniques.census",
+    "gux_checker.techniques.census_diff",
     "gux_checker.techniques.ocr",
     "gux_checker.techniques.lines",
     "gux_checker.techniques.regions",

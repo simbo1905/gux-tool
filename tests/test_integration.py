@@ -10,29 +10,36 @@ from gux_checker.core.types import Report, ZoneImage
 from gux_checker.registry import discover
 from PIL import Image
 
+from chrome import find_chrome
+
 TESTS_DIR = Path(__file__).parent
 HTML_DIR = TESTS_DIR / 'html'
 FIXTURES_DIR = TESTS_DIR / 'fixtures'
 DASHBOARD_HTML = HTML_DIR / 'dashboard.html'
 DASHBOARD_GUX = FIXTURES_DIR / 'dashboard.gux'
 
-CHROME = 'google-chrome-stable'
-
 
 def _chrome_available() -> bool:
+    """True if a Chrome binary is present and answers --version."""
+    chrome = find_chrome()
+    if chrome is None:
+        return False
     try:
-        subprocess.run([CHROME, '--version'], capture_output=True, timeout=5)
+        subprocess.run([chrome, '--version'], capture_output=True, timeout=5)
         return True
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+    except (FileNotFoundError, PermissionError, OSError, subprocess.TimeoutExpired):
         return False
 
 
 def _screenshot(html_path: Path, output_path: Path, width: int = 960, height: int = 900) -> None:
     """Take a headless Chrome screenshot of an HTML file."""
+    chrome = find_chrome()
+    if chrome is None:
+        raise RuntimeError('No Chrome binary available')
     url = f'file://{html_path.resolve()}'
     subprocess.run(
         [
-            CHROME,
+            chrome,
             '--headless=new',
             '--no-sandbox',
             '--disable-gpu',
@@ -52,7 +59,7 @@ def _screenshot(html_path: Path, output_path: Path, width: int = 960, height: in
 def dashboard_screenshot(tmp_path_factory: pytest.TempPathFactory) -> Path:
     """Screenshot the dashboard HTML once for all tests in this module."""
     if not _chrome_available():
-        pytest.skip('google-chrome-stable not available')
+        pytest.skip('No Chrome/Chromium binary available (set CHROME to override)')
     tmp = tmp_path_factory.mktemp('screenshots')
     shot = tmp / 'dashboard.png'
     _screenshot(DASHBOARD_HTML, shot)

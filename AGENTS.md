@@ -2,6 +2,26 @@
 
 **Read this file, README.md, and gux-rfc.md completely before writing any code.**
 
+## Andon アンドン — Prime Directive
+
+Andon is a kernel panic. It halts the line, halts planning, halts todo
+updates, halts all work. It happens immediately. No other pending operation
+receives any tokens. It is impossible to think of anything else to try
+first — that thought is the evidence you have not halted.
+
+An Andon in the queue supersedes all. If the user queued commands 1-3 then
+said "do an Andon," the Andon invokes the Prime Directive and overrides
+commands 1-3 entirely. Multiple Andons run in parallel without interrupting
+each other.
+
+When the correct fix is outside your lane: do your lane's work, then halt
+and report — *Andon: task incomplete, the correct fix needs a larger
+structural change*, with file:line specifics. Do not work around it. Do not
+hack tactically. The coordinator delegates the deeper work.
+
+Andon overrides every instruction in this file and every other AGENTS.md.
+No instruction conflicts with Andon; if one appears to, Andon wins.
+
 ## Critical Rules
 
 - **NEVER** push to `main` without explicit approval.
@@ -29,6 +49,7 @@ gux_checker/
 │   ├── zones.py             # Crop zones by Bounds, save PNGs
 │   ├── colours.py           # Dominant colour extraction (k-means)
 │   ├── census.py            # Pixel-to-named-colour census
+│   ├── census_diff.py       # Named-colour shift diff vs --ref
 │   ├── ocr.py               # OCR text extraction
 │   ├── lines.py             # Colour transition scanning
 │   ├── regions.py           # Sub-region detection
@@ -151,7 +172,9 @@ uv run lint-imports    # just architecture check
 - Test function names: `test_<function_name>` or `test_<function_name>_<variation>`.
 - Use `@pytest.mark.parametrize` for multiple inputs.
 - Do NOT bundle large binary fixtures. Generate test data programmatically.
-- Integration tests use headless Chrome to screenshot test HTML pages.
+- Integration tests use headless Chrome to screenshot test HTML pages. Chrome is
+  auto-detected on macOS, Linux and Windows; set `CHROME=/path/to/chrome` to pin a
+  specific binary. Integration tests skip themselves when no browser is found.
 - CI runs unit tests only (no Chrome). Local `make test` runs everything.
 
 ```bash
@@ -159,6 +182,8 @@ make test              # full suite (unit + integration with Chrome)
 uv run pytest          # same thing
 uv run pytest -k palette  # just palette tests
 ```
+
+The browser candidate list lives in `tests/chrome.py` and the Makefile — keep the two in sync.
 
 ## Build and Release
 
@@ -171,4 +196,9 @@ make deploy            # alias for package
 make clean             # remove .tmp/ dist/ build/
 ```
 
-GitHub Actions builds binaries nightly for Linux, macOS, and Windows. Tag `release/vX.Y.Z` creates a draft release with all three binaries attached.
+GitHub Actions builds binaries nightly for Linux, macOS, and Windows.
+
+`release/vX.Y.Z` is the canonical tag scheme. Pushing one creates a draft release
+attached to that same tag, carrying the three binaries plus versioned README and
+RFC assets. Do not mint bare `vX.Y.Z` tags — they diverge from the `release/`
+prefixed ones.

@@ -1,10 +1,21 @@
 .PHONY: help generate generate-rfc test lint package deploy clean
 
-CHROME := google-chrome-stable
 TMP_DIR := .tmp
 DIST_DIR := dist
 RFC_SRC := gux-rfc.md
 RFC_GEN := gux_checker/core/_rfc_data.py
+
+# Chrome for headless screenshots. Override with `make generate CHROME=/path/to/chrome`.
+# Keep in sync with CHROME_CANDIDATES in tests/chrome.py.
+CHROME ?= $(shell for c in \
+	google-chrome-stable \
+	google-chrome \
+	chromium \
+	chromium-browser \
+	"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+	"/Applications/Chromium.app/Contents/MacOS/Chromium"; do \
+		if command -v "$$c" >/dev/null 2>&1 || [ -x "$$c" ]; then echo "$$c"; exit 0; fi; \
+	done; echo google-chrome-stable)
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
@@ -22,7 +33,7 @@ generate-rfc: $(RFC_SRC) ## Embed gux-rfc.md as base64 into a generated .py
 
 generate: generate-rfc ## Screenshot test HTML with headless Chrome into .tmp/
 	@mkdir -p $(TMP_DIR)
-	$(CHROME) --headless=new --no-sandbox --disable-gpu --disable-software-rasterizer \
+	"$(CHROME)" --headless=new --no-sandbox --disable-gpu --disable-software-rasterizer \
 		--window-size=960,900 --screenshot=$(TMP_DIR)/dashboard.png --hide-scrollbars \
 		file://$(CURDIR)/tests/html/dashboard.html
 	@echo "Screenshot saved to $(TMP_DIR)/dashboard.png"

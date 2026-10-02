@@ -146,17 +146,13 @@ jobs:
         with:
           path: artifacts
 
-      - name: Extract semver from tag
-        id: version
-        # Strip 'release/' prefix — tag is release/v1.2.3, semver is v1.2.3
-        run: echo "semver=${GITHUB_REF#refs/tags/release/}" >> "$GITHUB_OUTPUT"
-
       - name: Create draft release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="${{ steps.version.outputs.semver }}"
-          gh release create "$VERSION" \
+          TAG="$GITHUB_REF_NAME"
+          VERSION="${TAG#release/}"
+          gh release create "$TAG" \
             --title "gux-tool $VERSION" \
             --draft \
             --generate-notes \
